@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronRight, CheckCircle2, Brain, PlayCircle } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, CheckCircle2, Brain, PlayCircle } from 'lucide-react';
 import { beginnerModules } from './modules';
 import { MiniMarketChart } from './MiniMarketChart';
 
@@ -33,6 +33,14 @@ export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPat
       onComplete(moduleData.xpReward, moduleData.id);
     } else {
       setCurrentStepIndex(prev => prev + 1);
+      setSelectedOption(null);
+      setShowExplanation(false);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(prev => prev - 1);
       setSelectedOption(null);
       setShowExplanation(false);
     }
@@ -199,7 +207,18 @@ export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPat
 
       {/* Footer Actions */}
       <footer className="fixed bottom-0 left-0 right-0 p-6 border-t border-outline-variant bg-surface-container-lowest flex justify-end z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-        <div className="max-w-4xl mx-auto w-full flex justify-end">
+        <div className="max-w-4xl mx-auto w-full flex justify-between items-center">
+          {currentStepIndex > 0 ? (
+            <button 
+              onClick={handleBack}
+              className="flex items-center gap-2 py-4 px-8 rounded-full font-bold text-lg transition-all bg-surface-container-high text-on-surface hover:bg-surface-variant hover:text-primary border border-outline-variant"
+            >
+              <ChevronLeft size={24} /> Voltar
+            </button>
+          ) : (
+            <div />
+          )}
+
           <button 
             onClick={handleNext}
             disabled={!canProceed}
