@@ -1,4 +1,7 @@
-export type StepType = 'dialog' | 'chart-highlight' | 'quiz' | 'practice';
+const fs = require('fs');
+const path = require('path');
+
+const content = `export type StepType = 'dialog' | 'chart-highlight' | 'quiz' | 'practice';
 
 export interface Step {
   id: string;
@@ -466,3 +469,7 @@ export const beginnerModules: Module[] = [
     ]
   }
 ];
+`;
+
+fs.writeFileSync(path.join(__dirname, 'src/components/academy/modules.ts'), content, 'utf-8');
+console.log('modules.ts generated successfully');

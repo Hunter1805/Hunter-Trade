@@ -17,6 +17,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import { BeginnerPathEngine } from '../components/academy/BeginnerPathEngine';
 import { MiniMarketChart } from '../components/academy/MiniMarketChart';
+import { AcademyLibraryDrawer } from '../components/academy/AcademyLibraryDrawer';
 import { useMarket } from '../context/MarketContext';
 
 export function AcademyView() {
@@ -24,6 +25,8 @@ export function AcademyView() {
   const [isPathActive, setIsPathActive] = useState(false);
   const [currentModuleId, setCurrentModuleId] = useState<string>('m1');
   const [xp, setXp] = useState(0);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [completedMissions, setCompletedMissions] = useState<string[]>([]);
   
   // States for interaction fix
   const [showLiveChart, setShowLiveChart] = useState(false);
@@ -32,12 +35,31 @@ export function AcademyView() {
   useEffect(() => {
     const savedXp = localStorage.getItem('hunter_academy_progress');
     if (savedXp) setXp(parseInt(savedXp, 10));
+
+    const savedMissions = localStorage.getItem('hunter_academy_completed_missions');
+    if (savedMissions) {
+      try {
+        setCompletedMissions(JSON.parse(savedMissions));
+      } catch (e) {
+        setCompletedMissions([]);
+      }
+    }
   }, []);
 
-  const handleCompleteModule = (earnedXp: number) => {
+  const handleCompleteModule = (earnedXp: number, moduleId: string) => {
     const newXp = xp + earnedXp;
     setXp(newXp);
     localStorage.setItem('hunter_academy_progress', newXp.toString());
+    
+    setCompletedMissions((prev) => {
+      if (!prev.includes(moduleId)) {
+        const next = [...prev, moduleId];
+        localStorage.setItem('hunter_academy_completed_missions', JSON.stringify(next));
+        return next;
+      }
+      return prev;
+    });
+
     setIsPathActive(false);
   };
 
@@ -117,10 +139,16 @@ export function AcademyView() {
         </div>
         <div className="flex items-center gap-6 hidden md:flex">
           <button 
-            onClick={() => { setCurrentModuleId('m1'); setIsPathActive(true); }}
+            onClick={() => setIsLibraryOpen(true)}
+            className="flex items-center gap-2 bg-surface-container border border-outline-variant text-on-surface font-bold py-2 px-6 rounded-full hover:bg-surface-variant transition-all hover:border-secondary-container"
+          >
+            📚 Biblioteca da Trilha
+          </button>
+          <button 
+            onClick={() => { setIsPathActive(true); }}
             className="flex items-center gap-2 bg-primary text-black font-bold py-2 px-6 rounded-full hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]"
           >
-            🚀 Iniciar Trilha do Iniciante
+            🚀 Iniciar Trilha
           </button>
           <div className="flex flex-col items-end">
             <span className="font-label-sm text-label-sm text-primary uppercase tracking-wider">
@@ -422,6 +450,18 @@ export function AcademyView() {
       <footer className="bg-surface-container-lowest border-t border-outline-variant fixed bottom-0 md:left-64 right-0 flex justify-between items-center h-12 px-6 z-40">
          <span className="font-label-sm font-bold text-on-surface">© 2024 HUNTER TRADE OS</span>
       </footer>
+
+      <AcademyLibraryDrawer 
+        isOpen={isLibraryOpen}
+        onClose={() => setIsLibraryOpen(false)}
+        completedMissions={completedMissions}
+        currentModuleId={currentModuleId}
+        onSelectModule={(id) => {
+          setCurrentModuleId(id);
+          setIsLibraryOpen(false);
+          setIsPathActive(true);
+        }}
+      />
     </div>
   );
 }

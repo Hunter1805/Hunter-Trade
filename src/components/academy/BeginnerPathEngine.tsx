@@ -6,7 +6,7 @@ import { MiniMarketChart } from './MiniMarketChart';
 interface BeginnerPathEngineProps {
   moduleId: string;
   onExit: () => void;
-  onComplete: (xp: number) => void;
+  onComplete: (xp: number, moduleId: string) => void;
 }
 
 export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPathEngineProps) {
@@ -30,7 +30,7 @@ export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPat
 
   const handleNext = () => {
     if (isLastStep) {
-      onComplete(moduleData.xpReward);
+      onComplete(moduleData.xpReward, moduleData.id);
     } else {
       setCurrentStepIndex(prev => prev + 1);
       setSelectedOption(null);
