@@ -94,7 +94,6 @@ export function AcademyView() {
 
   if (isPathActive) {
     return (
-    return (
       <div className="h-full w-full flex-1 relative bg-background">
         <BeginnerPathEngine
           moduleId={currentModuleId}
@@ -102,7 +101,6 @@ export function AcademyView() {
           onComplete={handleCompleteModule}
         />
       </div>
-    );
     );
   }
   return (
