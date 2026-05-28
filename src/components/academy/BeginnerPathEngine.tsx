@@ -68,7 +68,8 @@ export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPat
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col max-w-4xl mx-auto w-full pb-32">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col w-full">
+        <div className="max-w-4xl mx-auto w-full flex flex-col min-h-full">
         
         {/* Gráfico Visual */}
         {(step.type === 'chart-highlight' || step.type === 'quiz' || step.type === 'practice' || step.chartConfig) && (
@@ -192,6 +193,8 @@ export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPat
           </div>
         )}
 
+        <div className="h-40 shrink-0 w-full"></div>
+        </div>
       </div>
 
       {/* Footer Actions */}
