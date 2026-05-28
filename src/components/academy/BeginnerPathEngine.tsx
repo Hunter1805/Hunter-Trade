@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { X, ChevronRight, ChevronLeft, CheckCircle2, Brain, PlayCircle } from 'lucide-react';
 import { beginnerModules } from './modules';
-import { MiniMarketChart } from './MiniMarketChart';
+import { LessonChartPlayer } from './LessonChartPlayer';
 
 interface BeginnerPathEngineProps {
   moduleId: string;
   onExit: () => void;
   onComplete: (xp: number, moduleId: string) => void;
+  onOpenLibrary?: () => void;
 }
 
-export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPathEngineProps) {
+export function BeginnerPathEngine({ moduleId, onExit, onComplete, onOpenLibrary }: BeginnerPathEngineProps) {
   const moduleData = beginnerModules.find(m => m.id === moduleId);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -73,6 +74,14 @@ export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPat
         <div className="font-headline-sm text-primary font-bold">
           {moduleData.title}
         </div>
+        {onOpenLibrary && (
+          <button 
+            onClick={onOpenLibrary}
+            className="ml-6 flex items-center gap-2 bg-surface-container border border-outline-variant text-on-surface font-bold py-2 px-4 rounded-full hover:bg-surface-variant transition-all hover:border-secondary-container text-sm shrink-0"
+          >
+            📚 Ver Trilhas
+          </button>
+        )}
       </header>
 
       {/* Main Content Area */}
@@ -80,9 +89,9 @@ export function BeginnerPathEngine({ moduleId, onExit, onComplete }: BeginnerPat
         <div className="max-w-4xl mx-auto w-full flex flex-col min-h-full">
         
         {/* Gráfico Visual */}
-        {(step.type === 'chart-highlight' || step.type === 'quiz' || step.type === 'practice' || step.chartConfig) && (
+        {(step.type === 'chart-highlight' || step.type === 'quiz' || step.type === 'practice' || step.scenarioId) && step.scenarioId && (
           <div className="mb-8">
-            <MiniMarketChart config={step.chartConfig} />
+            <LessonChartPlayer scenarioId={step.scenarioId} />
           </div>
         )}
 

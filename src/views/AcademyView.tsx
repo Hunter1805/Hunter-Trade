@@ -121,6 +121,7 @@ export function AcademyView() {
           moduleId={currentModuleId}
           onExit={() => setIsPathActive(false)}
           onComplete={handleCompleteModule}
+          onOpenLibrary={() => setIsLibraryOpen(true)}
         />
       </div>
     );
