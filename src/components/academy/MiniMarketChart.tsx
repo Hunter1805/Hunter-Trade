@@ -174,10 +174,10 @@ export function MiniMarketChart({ config = {} }: MiniMarketChartProps) {
             />
            </svg>
            {config.highlightRSI === 'overbought' && (
-             <div className="absolute top-1 right-2 text-error text-[10px] font-bold bg-error/10 px-2 py-0.5 rounded border border-error/30">SOBRECOMPRADO (RSI > 70)</div>
+             <div className="absolute top-1 right-2 text-error text-[10px] font-bold bg-error/10 px-2 py-0.5 rounded border border-error/30">SOBRECOMPRADO (RSI &gt; 70)</div>
            )}
            {config.highlightRSI === 'oversold' && (
-             <div className="absolute bottom-1 right-2 text-primary text-[10px] font-bold bg-primary/10 px-2 py-0.5 rounded border border-primary/30">SOBREVENDIDO (RSI < 30)</div>
+             <div className="absolute bottom-1 right-2 text-primary text-[10px] font-bold bg-primary/10 px-2 py-0.5 rounded border border-primary/30">SOBREVENDIDO (RSI &lt; 30)</div>
            )}
            <div className="absolute left-2 top-1 text-on-surface-variant text-[10px] font-bold">RSI (14)</div>
         </div>
