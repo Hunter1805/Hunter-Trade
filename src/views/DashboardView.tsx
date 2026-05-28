@@ -30,11 +30,30 @@ export function DashboardView() {
     changeTimeframe,
     runAIAnalysis,
     symbols,
+    highlightStructure,
+    setHighlightStructure,
   } = useMarket();
 
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [glowActive, setGlowActive] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (highlightStructure) {
+      setGlowActive(true);
+      // Scroll into view if needed
+      if (chartRef.current) {
+        chartRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      const timer = setTimeout(() => {
+        setGlowActive(false);
+        setHighlightStructure(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightStructure, setHighlightStructure]);
 
   // Fecha o dropdown de busca se o usuário clicar fora
   useEffect(() => {
@@ -279,7 +298,12 @@ export function DashboardView() {
             </div>
           </div>
 
-          <div className="flex-1 min-h-[400px] bg-surface-container-lowest border border-outline-variant rounded-xl relative overflow-hidden flex flex-col group chart-grid">
+          <div 
+            ref={chartRef}
+            className={`flex-1 min-h-[400px] bg-surface-container-lowest border rounded-xl relative overflow-hidden flex flex-col group chart-grid transition-all duration-1000 ${
+              glowActive ? 'border-primary shadow-[0_0_30px_rgba(16,185,129,0.3)]' : 'border-outline-variant'
+            }`}
+          >
             {/* Watermark */}
             <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
               <span className="font-display-lg text-[120px] font-black text-on-surface">HUNTER OS</span>

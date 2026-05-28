@@ -11,7 +11,8 @@ import {
   SlidersHorizontal,
   Target,
   Rocket,
-  PlayCircle
+  PlayCircle,
+  TrendingUp
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { BeginnerPathEngine } from '../components/academy/BeginnerPathEngine';
@@ -19,7 +20,7 @@ import { MiniMarketChart } from '../components/academy/MiniMarketChart';
 import { useMarket } from '../context/MarketContext';
 
 export function AcademyView() {
-  const { marketData, activeSymbol } = useMarket();
+  const { marketData, activeSymbol, changeSymbol, setHighlightStructure } = useMarket();
   const [isPathActive, setIsPathActive] = useState(false);
   const [currentModuleId, setCurrentModuleId] = useState<string>('m1');
   const [xp, setXp] = useState(0);
@@ -29,20 +30,23 @@ export function AcademyView() {
   const [replayFeedback, setReplayFeedback] = useState<{type: 'success' | 'error' | 'wait', text: string} | null>(null);
 
   useEffect(() => {
-    const savedXp = localStorage.getItem('@hunter:beginnerXp');
+    const savedXp = localStorage.getItem('hunter_academy_progress');
     if (savedXp) setXp(parseInt(savedXp, 10));
   }, []);
 
   const handleCompleteModule = (earnedXp: number) => {
     const newXp = xp + earnedXp;
     setXp(newXp);
-    localStorage.setItem('@hunter:beginnerXp', newXp.toString());
+    localStorage.setItem('hunter_academy_progress', newXp.toString());
     setIsPathActive(false);
   };
 
   const handleMiniAction = (action: 'buy' | 'sell' | 'wait') => {
-    const data = marketData[activeSymbol];
-    if (!data || data.candles.length === 0) return;
+    const data = marketData?.[activeSymbol];
+    if (!data || !Array.isArray(data.candles) || data.candles.length === 0) {
+       console.error("[ACADEMY_ERROR] Dados de mercado não disponíveis para replay.");
+       return;
+    }
     
     const lastCandle = data.candles[data.candles.length - 1];
     const isUpTrend = lastCandle.close > (lastCandle.ema200 || lastCandle.close);
@@ -53,14 +57,14 @@ export function AcademyView() {
         setReplayFeedback({ type: 'success', text: "Boa leitura! Você percebeu que o mercado está acima da EMA200, favorecendo compras. +10 XP" });
         earnedXp = 10;
       } else {
-        setReplayFeedback({ type: 'error', text: "Entrada arriscada. O mercado está caindo (abaixo da EMA200). Tentar comprar agora é tentar segurar uma faca caindo." });
+        setReplayFeedback({ type: 'error', text: "Entrada contra tendência. O mercado está caindo (abaixo da EMA200). Tentar comprar agora é arriscado." });
       }
     } else if (action === 'sell') {
       if (!isUpTrend) {
         setReplayFeedback({ type: 'success', text: "Ótima visão! O mercado está abaixo da EMA200, vendas são mais seguras aqui. +10 XP" });
         earnedXp = 10;
       } else {
-        setReplayFeedback({ type: 'error', text: "Cuidado! O mercado está em tendência de alta (acima da EMA200). Vender contra a tendência é perigoso." });
+        setReplayFeedback({ type: 'error', text: "Entrada contra tendência! O mercado está em alta (acima da EMA200). Vender aqui é perigoso." });
       }
     } else {
       setReplayFeedback({ type: 'wait', text: "Esperar também é operar. Paciência é a virtude dos grandes traders. +5 XP" });
@@ -70,17 +74,35 @@ export function AcademyView() {
     if (earnedXp > 0) {
       const newXp = xp + earnedXp;
       setXp(newXp);
-      localStorage.setItem('@hunter:beginnerXp', newXp.toString());
+      localStorage.setItem('hunter_academy_progress', newXp.toString());
     }
   };
 
+  const handleOpenChart = () => {
+    try {
+      changeSymbol('BTCUSDT');
+      if (setHighlightStructure) {
+        setHighlightStructure('choch');
+      }
+      window.dispatchEvent(new CustomEvent('change-view', { detail: 'dashboard' }));
+    } catch (err) {
+      console.error("[ACADEMY_ERROR] Falha ao abrir gráfico:", err);
+    }
+  };
+
+  // Safe render check for market data if needed, but we can just use optional chaining below.
+
   if (isPathActive) {
     return (
-      <BeginnerPathEngine
-        moduleId={currentModuleId}
-        onExit={() => setIsPathActive(false)}
-        onComplete={handleCompleteModule}
-      />
+    return (
+      <div className="h-full w-full flex-1 relative bg-background">
+        <BeginnerPathEngine
+          moduleId={currentModuleId}
+          onExit={() => setIsPathActive(false)}
+          onComplete={handleCompleteModule}
+        />
+      </div>
+    );
     );
   }
   return (
@@ -179,14 +201,10 @@ export function AcademyView() {
             <div className="mt-6 flex flex-col gap-4">
               <div className="flex justify-end">
                 <button 
-                  onClick={() => setShowLiveChart(!showLiveChart)}
-                  className={`border font-label-md text-label-md py-2 px-6 rounded transition-colors flex items-center gap-2 ${
-                    showLiveChart 
-                      ? 'border-primary text-primary bg-primary/10 shadow-[0_0_10px_rgba(16,185,129,0.2)]' 
-                      : 'border-secondary-container text-secondary-container hover:bg-secondary-container/10'
-                  }`}
+                  onClick={handleOpenChart}
+                  className="border font-label-md text-label-md py-2 px-6 rounded transition-colors flex items-center gap-2 border-secondary-container text-secondary-container hover:bg-secondary-container/10"
                 >
-                  <TrendingUp size={16} /> {showLiveChart ? 'Ocultar gráfico' : 'Ver no gráfico'}
+                  <TrendingUp size={16} /> Ver no gráfico
                 </button>
               </div>
               {showLiveChart && (
@@ -244,7 +262,7 @@ export function AcademyView() {
                         mission.done ? 'text-on-surface line-through' : 'text-on-surface group-hover:text-secondary-fixed'
                       }`}
                     >
-                      {mission.label}
+                      {mission?.label}
                     </span>
                   </div>
                   <span
@@ -252,7 +270,7 @@ export function AcademyView() {
                       mission.done ? 'text-primary' : 'text-on-surface-variant'
                     }`}
                   >
-                    +{mission.xp} XP
+                    +{mission?.xp} XP
                   </span>
                 </li>
               ))}

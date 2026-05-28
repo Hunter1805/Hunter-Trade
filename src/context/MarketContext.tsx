@@ -16,6 +16,8 @@ interface MarketContextType {
   changeTimeframe: (timeframe: string) => void;
   runAIAnalysis: () => Promise<void>;
   symbols: { symbol: string; name: string; type: 'crypto' | 'forex' }[];
+  highlightStructure: string | null;
+  setHighlightStructure: (structure: string | null) => void;
 }
 
 const symbolsList = [
@@ -44,6 +46,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysisResult | null>(null);
   const [aiLoading, setAiLoading] = useState<boolean>(false);
+  const [highlightStructure, setHighlightStructure] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const forexIntervalRef = useRef<number | null>(null);
@@ -387,6 +390,8 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         changeTimeframe,
         runAIAnalysis,
         symbols: symbolsList,
+        highlightStructure,
+        setHighlightStructure,
       }}
     >
       {children}
