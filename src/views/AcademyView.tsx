@@ -10,11 +10,79 @@ import {
   MapPin,
   SlidersHorizontal,
   Target,
-  TrendingUp,
+  Rocket,
+  PlayCircle
 } from 'lucide-react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { BeginnerPathEngine } from '../components/academy/BeginnerPathEngine';
+import { MiniMarketChart } from '../components/academy/MiniMarketChart';
+import { useMarket } from '../context/MarketContext';
 
 export function AcademyView() {
+  const { marketData, activeSymbol } = useMarket();
+  const [isPathActive, setIsPathActive] = useState(false);
+  const [currentModuleId, setCurrentModuleId] = useState<string>('m1');
+  const [xp, setXp] = useState(0);
+  
+  // States for interaction fix
+  const [showLiveChart, setShowLiveChart] = useState(false);
+  const [replayFeedback, setReplayFeedback] = useState<{type: 'success' | 'error' | 'wait', text: string} | null>(null);
+
+  useEffect(() => {
+    const savedXp = localStorage.getItem('@hunter:beginnerXp');
+    if (savedXp) setXp(parseInt(savedXp, 10));
+  }, []);
+
+  const handleCompleteModule = (earnedXp: number) => {
+    const newXp = xp + earnedXp;
+    setXp(newXp);
+    localStorage.setItem('@hunter:beginnerXp', newXp.toString());
+    setIsPathActive(false);
+  };
+
+  const handleMiniAction = (action: 'buy' | 'sell' | 'wait') => {
+    const data = marketData[activeSymbol];
+    if (!data || data.candles.length === 0) return;
+    
+    const lastCandle = data.candles[data.candles.length - 1];
+    const isUpTrend = lastCandle.close > (lastCandle.ema200 || lastCandle.close);
+
+    let earnedXp = 0;
+    if (action === 'buy') {
+      if (isUpTrend) {
+        setReplayFeedback({ type: 'success', text: "Boa leitura! Você percebeu que o mercado está acima da EMA200, favorecendo compras. +10 XP" });
+        earnedXp = 10;
+      } else {
+        setReplayFeedback({ type: 'error', text: "Entrada arriscada. O mercado está caindo (abaixo da EMA200). Tentar comprar agora é tentar segurar uma faca caindo." });
+      }
+    } else if (action === 'sell') {
+      if (!isUpTrend) {
+        setReplayFeedback({ type: 'success', text: "Ótima visão! O mercado está abaixo da EMA200, vendas são mais seguras aqui. +10 XP" });
+        earnedXp = 10;
+      } else {
+        setReplayFeedback({ type: 'error', text: "Cuidado! O mercado está em tendência de alta (acima da EMA200). Vender contra a tendência é perigoso." });
+      }
+    } else {
+      setReplayFeedback({ type: 'wait', text: "Esperar também é operar. Paciência é a virtude dos grandes traders. +5 XP" });
+      earnedXp = 5;
+    }
+
+    if (earnedXp > 0) {
+      const newXp = xp + earnedXp;
+      setXp(newXp);
+      localStorage.setItem('@hunter:beginnerXp', newXp.toString());
+    }
+  };
+
+  if (isPathActive) {
+    return (
+      <BeginnerPathEngine
+        moduleId={currentModuleId}
+        onExit={() => setIsPathActive(false)}
+        onComplete={handleCompleteModule}
+      />
+    );
+  }
   return (
     <div className="flex-1 flex flex-col h-full bg-background relative overflow-hidden">
       <header className="flex justify-between items-center h-20 px-8 bg-surface/80 backdrop-blur-xl border-b border-outline-variant sticky top-0 z-40 shrink-0">
@@ -28,11 +96,17 @@ export function AcademyView() {
           </p>
         </div>
         <div className="flex items-center gap-6 hidden md:flex">
+          <button 
+            onClick={() => { setCurrentModuleId('m1'); setIsPathActive(true); }}
+            className="flex items-center gap-2 bg-primary text-black font-bold py-2 px-6 rounded-full hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+          >
+            🚀 Iniciar Trilha do Iniciante
+          </button>
           <div className="flex flex-col items-end">
             <span className="font-label-sm text-label-sm text-primary uppercase tracking-wider">
-              Iniciante
+              Nível {Math.floor(xp / 100) + 1}
             </span>
-            <span className="font-label-md text-label-md text-on-surface">XP: 230/1000</span>
+            <span className="font-label-md text-label-md text-on-surface">XP: {xp}</span>
           </div>
           <div className="w-32 h-2 bg-surface-container-high rounded-full overflow-hidden border border-outline-variant">
             <div className="h-full bg-primary-container w-[23%]"></div>
@@ -102,10 +176,31 @@ export function AcademyView() {
                 </p>
               </div>
             </div>
-            <div className="mt-6 flex justify-end">
-              <button className="border border-secondary-container text-secondary-container font-label-md text-label-md py-2 px-6 rounded hover:bg-secondary-container/10 transition-colors flex items-center gap-2">
-                <TrendingUp size={16} /> Ver no gráfico
-              </button>
+            <div className="mt-6 flex flex-col gap-4">
+              <div className="flex justify-end">
+                <button 
+                  onClick={() => setShowLiveChart(!showLiveChart)}
+                  className={`border font-label-md text-label-md py-2 px-6 rounded transition-colors flex items-center gap-2 ${
+                    showLiveChart 
+                      ? 'border-primary text-primary bg-primary/10 shadow-[0_0_10px_rgba(16,185,129,0.2)]' 
+                      : 'border-secondary-container text-secondary-container hover:bg-secondary-container/10'
+                  }`}
+                >
+                  <TrendingUp size={16} /> {showLiveChart ? 'Ocultar gráfico' : 'Ver no gráfico'}
+                </button>
+              </div>
+              {showLiveChart && (
+                <div className="animate-in slide-in-from-top-4 duration-300">
+                  <MiniMarketChart 
+                    config={{
+                      showEMA200: true,
+                      showBOS: true,
+                      highlightCandles: 'impulsive',
+                      drawArrows: [{ xIndex: -5, direction: 'up' }]
+                    }} 
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -212,27 +307,60 @@ export function AcademyView() {
                 O que você faria agora?
               </span>
               <div className="flex gap-4">
-                <button className="bg-primary-container text-black font-label-md font-bold py-2 px-6 rounded hover:opacity-90">
+                <button 
+                  onClick={() => handleMiniAction('buy')}
+                  className="bg-primary/20 text-primary border border-primary/50 font-label-md font-bold py-2 px-6 rounded hover:bg-primary hover:text-black transition-colors"
+                >
                   Comprar
                 </button>
-                <button className="bg-error-container text-white font-label-md font-bold py-2 px-6 rounded hover:opacity-90">
+                <button 
+                  onClick={() => handleMiniAction('sell')}
+                  className="bg-error/20 text-error border border-error/50 font-label-md font-bold py-2 px-6 rounded hover:bg-error hover:text-white transition-colors"
+                >
                   Vender
                 </button>
-                <button className="bg-surface text-on-surface border border-outline font-label-md py-2 px-6 rounded hover:bg-surface-variant">
+                <button 
+                  onClick={() => handleMiniAction('wait')}
+                  className="bg-surface text-on-surface border border-outline font-label-md py-2 px-6 rounded hover:bg-surface-variant transition-colors"
+                >
                   Esperar
                 </button>
               </div>
             </div>
-            <div className="bg-secondary-container/10 p-4 rounded-lg border border-secondary-container/30 relative">
-              <div className="absolute -top-3 left-4 bg-surface px-2 text-xs font-bold text-secondary-container tracking-wider">
+            
+            <div className={`p-4 rounded-lg border relative transition-colors duration-300 ${
+              !replayFeedback 
+                ? 'bg-secondary-container/10 border-secondary-container/30' 
+                : replayFeedback.type === 'success' 
+                  ? 'bg-primary/20 border-primary/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]' 
+                  : replayFeedback.type === 'error'
+                    ? 'bg-error/20 border-error/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
+                    : 'bg-surface-variant border-outline'
+            }`}>
+              <div className={`absolute -top-3 left-4 px-2 text-xs font-bold tracking-wider rounded ${
+                !replayFeedback ? 'bg-surface text-secondary-container' : 'bg-surface text-on-surface'
+              }`}>
                 IA PROFESSOR
               </div>
-              <p className="font-body-md text-on-surface italic mt-2 text-sm">
-                "Eu escolheria <span className="text-secondary-container font-semibold">esperar</span> porque o preço está comprimindo em um triângulo simétrico sob baixa liquidez."
+              <p className="font-body-md text-on-surface italic mt-2 text-sm flex items-start gap-2">
+                {!replayFeedback ? (
+                  <>
+                    "Eu escolheria <span className="text-secondary-container font-semibold">esperar</span> porque o preço está comprimindo em um triângulo simétrico sob baixa liquidez."
+                  </>
+                ) : (
+                  <>
+                    {replayFeedback.type === 'success' && <CheckCircle2 className="text-primary shrink-0" size={18} />}
+                    {replayFeedback.type === 'error' && <Brain className="text-error shrink-0" size={18} />}
+                    {replayFeedback.type === 'wait' && <PlayCircle className="text-secondary-container shrink-0" size={18} />}
+                    {replayFeedback.text}
+                  </>
+                )}
               </p>
-              <button className="mt-3 text-secondary-container font-label-sm hover:underline flex items-center gap-1">
-                Ver explicação completa <ArrowRight size={14} />
-              </button>
+              {!replayFeedback && (
+                <button className="mt-3 text-secondary-container font-label-sm hover:underline flex items-center gap-1">
+                  Ver explicação completa <ArrowRight size={14} />
+                </button>
+              )}
             </div>
           </div>
 
