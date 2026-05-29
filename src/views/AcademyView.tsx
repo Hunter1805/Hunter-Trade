@@ -18,6 +18,7 @@ import React, { useState, useEffect } from 'react';
 import { BeginnerPathEngine } from '../components/academy/BeginnerPathEngine';
 import { MiniMarketChart } from '../components/academy/MiniMarketChart';
 import { AcademyLibraryDrawer } from '../components/academy/AcademyLibraryDrawer';
+import { beginnerModules } from '../components/academy/modules';
 import { useMarket } from '../context/MarketContext';
 
 export function AcademyView() {
@@ -60,7 +61,15 @@ export function AcademyView() {
       return prev;
     });
 
-    setIsPathActive(false);
+    // Avançar para a próxima trilha automaticamente
+    const currentIndex = beginnerModules.findIndex(m => m.id === moduleId);
+    if (currentIndex >= 0 && currentIndex < beginnerModules.length - 1) {
+      const nextModuleId = beginnerModules[currentIndex + 1].id;
+      setCurrentModuleId(nextModuleId);
+    } else {
+      // Se for a última trilha, volta pra tela principal
+      setIsPathActive(false);
+    }
   };
 
   const handleMiniAction = (action: 'buy' | 'sell' | 'wait') => {

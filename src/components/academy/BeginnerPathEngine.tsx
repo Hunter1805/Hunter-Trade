@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronRight, ChevronLeft, CheckCircle2, Brain, PlayCircle } from 'lucide-react';
 import { beginnerModules } from './modules';
 import { LessonChartPlayer } from './LessonChartPlayer';
@@ -15,6 +15,12 @@ export function BeginnerPathEngine({ moduleId, onExit, onComplete, onOpenLibrary
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+
+  useEffect(() => {
+    setCurrentStepIndex(0);
+    setSelectedOption(null);
+    setShowExplanation(false);
+  }, [moduleId]);
 
   if (!moduleData) {
     return (
