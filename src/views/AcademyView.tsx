@@ -114,58 +114,57 @@ export function AcademyView() {
 
   // Safe render check for market data if needed, but we can just use optional chaining below.
 
-  if (isPathActive) {
-    return (
-      <div className="h-full w-full flex-1 relative bg-background">
-        <BeginnerPathEngine
-          moduleId={currentModuleId}
-          onExit={() => setIsPathActive(false)}
-          onComplete={handleCompleteModule}
-          onOpenLibrary={() => setIsLibraryOpen(true)}
-        />
-      </div>
-    );
-  }
   return (
-    <div className="flex-1 flex flex-col h-full bg-background relative overflow-hidden">
-      <header className="flex justify-between items-center h-20 px-8 bg-surface/80 backdrop-blur-xl border-b border-outline-variant sticky top-0 z-40 shrink-0">
-        <div className="flex flex-col">
-          <h1 className="font-headline-lg text-headline-lg text-on-surface flex items-center gap-2">
-            <GraduationCap className="text-primary-fixed" size={32} />
-            Academia IA
-          </h1>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-            Aprenda mercado na prática enquanto a IA ensina em tempo real.
-          </p>
+    <>
+      {isPathActive ? (
+        <div className="h-full w-full flex-1 relative bg-background">
+          <BeginnerPathEngine
+            moduleId={currentModuleId}
+            onExit={() => setIsPathActive(false)}
+            onComplete={handleCompleteModule}
+            onOpenLibrary={() => setIsLibraryOpen(true)}
+          />
         </div>
-        <div className="flex items-center gap-6 hidden md:flex">
-          <button 
-            onClick={() => setIsLibraryOpen(true)}
-            className="flex items-center gap-2 bg-surface-container border border-outline-variant text-on-surface font-bold py-2 px-6 rounded-full hover:bg-surface-variant transition-all hover:border-secondary-container"
-          >
-            📚 Biblioteca da Trilha
-          </button>
-          <button 
-            onClick={() => { setIsPathActive(true); }}
-            className="flex items-center gap-2 bg-primary text-black font-bold py-2 px-6 rounded-full hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-          >
-            🚀 Iniciar Trilha
-          </button>
-          <div className="flex flex-col items-end">
-            <span className="font-label-sm text-label-sm text-primary uppercase tracking-wider">
-              Nível {Math.floor(xp / 100) + 1}
-            </span>
-            <span className="font-label-md text-label-md text-on-surface">XP: {xp}</span>
-          </div>
-          <div className="w-32 h-2 bg-surface-container-high rounded-full overflow-hidden border border-outline-variant">
-            <div className="h-full bg-primary-container w-[23%]"></div>
-          </div>
-          <div className="h-8 w-px bg-outline-variant mx-2"></div>
-          <button className="text-on-surface hover:text-primary transition-colors">
-            <SlidersHorizontal size={20} />
-          </button>
-        </div>
-      </header>
+      ) : (
+        <div className="flex-1 flex flex-col h-full bg-background relative overflow-hidden">
+          <header className="flex justify-between items-center h-20 px-8 bg-surface/80 backdrop-blur-xl border-b border-outline-variant sticky top-0 z-40 shrink-0">
+            <div className="flex flex-col">
+              <h1 className="font-headline-lg text-headline-lg text-on-surface flex items-center gap-2">
+                <GraduationCap className="text-primary-fixed" size={32} />
+                Academia IA
+              </h1>
+              <p className="font-body-md text-body-md text-on-surface-variant mt-1">
+                Aprenda mercado na prática enquanto a IA ensina em tempo real.
+              </p>
+            </div>
+            <div className="flex items-center gap-6 hidden md:flex">
+              <button 
+                onClick={() => setIsLibraryOpen(true)}
+                className="flex items-center gap-2 bg-surface-container border border-outline-variant text-on-surface font-bold py-2 px-6 rounded-full hover:bg-surface-variant transition-all hover:border-secondary-container"
+              >
+                📚 Biblioteca da Trilha
+              </button>
+              <button 
+                onClick={() => { setIsPathActive(true); }}
+                className="flex items-center gap-2 bg-primary text-black font-bold py-2 px-6 rounded-full hover:bg-primary/90 transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+              >
+                🚀 Iniciar Trilha
+              </button>
+              <div className="flex flex-col items-end">
+                <span className="font-label-sm text-label-sm text-primary uppercase tracking-wider">
+                  Nível {Math.floor(xp / 100) + 1}
+                </span>
+                <span className="font-label-md text-label-md text-on-surface">XP: {xp}</span>
+              </div>
+              <div className="w-32 h-2 bg-surface-container-high rounded-full overflow-hidden border border-outline-variant">
+                <div className="h-full bg-primary-container w-[23%]"></div>
+              </div>
+              <div className="h-8 w-px bg-outline-variant mx-2"></div>
+              <button className="text-on-surface hover:text-primary transition-colors">
+                <SlidersHorizontal size={20} />
+              </button>
+            </div>
+          </header>
 
       <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -452,6 +451,10 @@ export function AcademyView() {
          <span className="font-label-sm font-bold text-on-surface">© 2024 HUNTER TRADE OS</span>
       </footer>
 
+          </div>
+        </div>
+      )}
+
       <AcademyLibraryDrawer 
         isOpen={isLibraryOpen}
         onClose={() => setIsLibraryOpen(false)}
@@ -463,7 +466,7 @@ export function AcademyView() {
           setIsPathActive(true);
         }}
       />
-    </div>
+    </>
   );
 }
 
