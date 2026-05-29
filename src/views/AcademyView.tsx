@@ -85,20 +85,20 @@ export function AcademyView() {
     let earnedXp = 0;
     if (action === 'buy') {
       if (isUpTrend) {
-        setReplayFeedback({ type: 'success', text: "Boa leitura! Você percebeu que o mercado está acima da EMA200, favorecendo compras. +10 XP" });
+        setReplayFeedback({ type: 'success', text: "Boa leitura! Você percebeu que o mercado está acima da EMA200, favorecendo compras." });
         earnedXp = 10;
       } else {
         setReplayFeedback({ type: 'error', text: "Entrada contra tendência. O mercado está caindo (abaixo da EMA200). Tentar comprar agora é arriscado." });
       }
     } else if (action === 'sell') {
       if (!isUpTrend) {
-        setReplayFeedback({ type: 'success', text: "Ótima visão! O mercado está abaixo da EMA200, vendas são mais seguras aqui. +10 XP" });
+        setReplayFeedback({ type: 'success', text: "Ótima visão! O mercado está abaixo da EMA200, vendas são mais seguras aqui." });
         earnedXp = 10;
       } else {
         setReplayFeedback({ type: 'error', text: "Entrada contra tendência! O mercado está em alta (acima da EMA200). Vender aqui é perigoso." });
       }
     } else {
-      setReplayFeedback({ type: 'wait', text: "Esperar também é operar. Paciência é a virtude dos grandes traders. +5 XP" });
+      setReplayFeedback({ type: 'wait', text: "Esperar também é operar. Paciência é a virtude dos grandes traders." });
       earnedXp = 5;
     }
 
@@ -159,15 +159,6 @@ export function AcademyView() {
               >
                 🚀 Iniciar Trilha
               </button>
-              <div className="flex flex-col items-end">
-                <span className="font-label-sm text-label-sm text-primary uppercase tracking-wider">
-                  Nível {Math.floor(xp / 100) + 1}
-                </span>
-                <span className="font-label-md text-label-md text-on-surface">XP: {xp}</span>
-              </div>
-              <div className="w-32 h-2 bg-surface-container-high rounded-full overflow-hidden border border-outline-variant">
-                <div className="h-full bg-primary-container w-[23%]"></div>
-              </div>
               <div className="h-8 w-px bg-outline-variant mx-2"></div>
               <button className="text-on-surface hover:text-primary transition-colors">
                 <SlidersHorizontal size={20} />
@@ -300,13 +291,6 @@ export function AcademyView() {
                       {mission?.label}
                     </span>
                   </div>
-                  <span
-                    className={`font-label-sm text-label-sm ${
-                      mission.done ? 'text-primary' : 'text-on-surface-variant'
-                    }`}
-                  >
-                    +{mission?.xp} XP
-                  </span>
                 </li>
               ))}
             </ul>
