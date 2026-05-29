@@ -450,8 +450,6 @@ export function AcademyView() {
       <footer className="bg-surface-container-lowest border-t border-outline-variant fixed bottom-0 md:left-64 right-0 flex justify-between items-center h-12 px-6 z-40">
          <span className="font-label-sm font-bold text-on-surface">© 2024 HUNTER TRADE OS</span>
       </footer>
-
-          </div>
         </div>
       )}
 
