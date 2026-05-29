@@ -23,20 +23,61 @@ export interface Module {
   steps: Step[];
 }
 
-// Helper to generate multiple basic modules to reach 50 lessons
+const dialogVariations = [
+  "No mercado financeiro, a lateralização (ou caixote) pode parecer monótona, mas é onde os grandes players acumulam posições secretamente. Esteja sempre atento à compressão do preço. A paciência aqui é de ouro: espere o mercado se decidir antes de você apostar suas fichas.",
+  "O gerenciamento de risco é o seu único e verdadeiro escudo. Mesmo que você leia o gráfico perfeitamente, o mercado pode ser irracional a curto prazo. Nunca arrisque mais do que 2% do seu capital por operação. Preserve sua conta para continuar no jogo amanhã.",
+  "A leitura pura da ação do preço (Price Action) é a linguagem nativa do mercado. Enquanto indicadores são matematicamente atrasados, o fechamento do preço e o tamanho do corpo da vela dizem exatamente o que os tubarões estão fazendo neste exato milissegundo.",
+  "A ansiedade e o FOMO (Fear Of Missing Out - Medo de ficar de fora) são os maiores destruidores de contas iniciantes. Entrar no meio do caminho porque um candle gigante verde está se formando é armadilha. Compre no suporte, venda na resistência.",
+  "Zonas de liquidez funcionam como ímãs gigantescos para o preço. O mercado se move caçando os 'Stops' da grande massa de traders varejistas. Entenda onde a maioria colocou seu Stop Loss e você saberá para onde os institucionais empurrarão o preço."
+];
+
+const chartVariations = [
+  "Observe com atenção os movimentos de expansão e retração. Toda tendência saudável respira. Comprar no esticamento é perigoso, o correto é esperar o preço voltar e respirar numa zona de suporte (Pullback).",
+  "Note a interação do preço com zonas críticas. Cada vez que o preço toca uma resistência e deixa um pavio longo, significa que a força compradora tomou um soco da vendedora. Pavios são cicatrizes de batalha.",
+  "Veja como o preço respeita as consolidações. Ele bate no teto e cai, bate no chão e sobe. É o famoso 'Range'. Muitos traders quebram tentando operar rompimentos que nunca acontecem. Jogue nas bordas!",
+  "Repare na aceleração do movimento quando uma zona importante é rompida de fato. Não há hesitação, os candles fecham cheios, sem deixar pavios longos. Isso é o que chamamos de real intenção institucional.",
+  "Olhe para o contexto geral do gráfico. Operar contra a maré (tendência macro) é exaustivo e caro. Se a escada está subindo (topos e fundos ascendentes), não tente prever quando vai cair. Continue comprando os fundos!"
+];
+
 const generateModules = (startId: number, count: number, track: string, baseTitle: string): Module[] => {
   const mods: Module[] = [];
   for(let i=0; i<count; i++) {
+    const dialogText = dialogVariations[i % dialogVariations.length];
+    const chartText = chartVariations[(i + 1) % chartVariations.length];
+    
     mods.push({
       id: `m${startId + i}`,
       track: track,
-      title: `${baseTitle} - Parte ${i+1}`,
-      description: 'Aprofundando conceitos e prática guiada.',
+      title: `${baseTitle} - Nível ${i+1}`,
+      description: 'Aprofundando a leitura visual e comportamental do gráfico.',
       xpReward: 50,
       steps: [
-        { id: `s1`, type: 'dialog', content: `Bem-vindo à aula ${startId + i}. Nesta lição, vamos consolidar nosso conhecimento de forma simples, como se estivéssemos lendo um livro.` },
-        { id: `s2`, type: 'chart-highlight', content: 'Observe este cenário no gráfico. O preço conta uma história.', scenarioId: 'lateral-range' },
-        { id: `s3`, type: 'quiz', content: 'Vamos testar seu raciocínio.', scenarioId: 'lateral-range', quiz: { question: 'O que o gráfico está mostrando?', options: [{id:'1', label:'O preço está preso entre teto e chão', isCorrect:true}, {id:'2', label:'O preço vai subir infinitamente', isCorrect:false}], explanationCorrect: 'Exato! É um caixote. O preço encontrou um "teto" (resistência) e um "chão" (suporte). Exemplo prático: imagine uma bola de basquete quicando dentro de um quarto; ela bate no teto e cai, bate no chão e sobe. É hora de jogar nas extremidades ou esperar o rompimento com paciência de sniper!', explanationIncorrect: 'Atenção! O preço está claramente batendo e voltando em pontos específicos. Exemplo prático: se você atirar uma bola num teto sólido, ela não vai atravessar na primeira tentativa. Cuidado ao comprar perto do teto sem nenhuma confirmação de força ou rompimento real.' } }
+        { 
+          id: `s1`, 
+          type: 'dialog', 
+          content: `Evolução de aprendizado (Aula ${startId + i}): \n\n${dialogText}\n\nPreste muita atenção na leitura e não tenha pressa. Dominar esse conceito vai te separar dos traders que só perdem dinheiro para o mercado.` 
+        },
+        { 
+          id: `s2`, 
+          type: 'chart-highlight', 
+          content: chartText, 
+          scenarioId: 'lateral-range' 
+        },
+        { 
+          id: `s3`, 
+          type: 'quiz', 
+          content: 'Hora de aplicar a teoria na prática e testar sua visão de águia:', 
+          scenarioId: 'lateral-range', 
+          quiz: { 
+            question: 'Analisando este cenário padrão de consolidação do preço, como devemos reagir?', 
+            options: [
+              {id:'1', label:'Operar as extremidades (comprar perto do chão, vender perto do teto)', isCorrect:true}, 
+              {id:'2', label:'Tentar comprar no meio do caixote acreditando que vai estourar pro alto', isCorrect:false}
+            ], 
+            explanationCorrect: 'Mente de Sniper! Exato. Num cenário lateral (caixote), o preço está espremido num corredor. Exemplo prático: é como jogar ping-pong; você só rebate quando a bolinha chega perto de você na extremidade da mesa. Jogar no meio é confusão e perda de dinheiro. Espere os extremos ou um rompimento limpo!', 
+            explanationIncorrect: 'Sinal Vermelho! O meio de um mercado lateral é chamado de "liquidificador" porque mói seu dinheiro. Exemplo prático: tentar pegar o movimento no meio do caminho sem uma direção clara é como atravessar uma rodovia movimentada de olhos vendados. Tenha paciência, trader!' 
+          } 
+        }
       ]
     });
   }
